@@ -1,25 +1,25 @@
 version: '3'
 services:
-#  rabbitmq:
-#    image: rabbitmq:3-management
-#    container_name: rabbitmq
-#    ports:
-#      - "5672:5672"   # RabbitMQ default port for AMQP
-#      - "15672:15672" # RabbitMQ Management UI
-#
-#  amqp_consumer:
-#    build: ./backend/amqp
-#    container_name: amqp_consumer
-#    depends_on:
-#      - rabbitmq
-#    environment:
-#      - RABBITMQ_HOST=rabbitmq
-#
-#  amqp_producer:
-#    build: ./backend/amqp
-#    command: ["python", "producer.py"]
-#    depends_on:
-#      - rabbitmq
+ rabbitmq:
+   image: rabbitmq:3-management
+   container_name: rabbitmq
+   ports:
+     - "5672:5672"   # RabbitMQ default port for AMQP
+     - "15672:15672" # RabbitMQ Management UI
+
+ amqp_consumer:
+   build: ./backend/amqp
+   container_name: amqp_consumer
+   depends_on:
+     - rabbitmq
+   environment:
+     - RABBITMQ_HOST=rabbitmq
+
+ amqp_producer:
+   build: ./backend/amqp
+   command: ["python", "producer.py"]
+   depends_on:
+     - rabbitmq
 
   streamlit:
     build: ./frontend/streamlit
