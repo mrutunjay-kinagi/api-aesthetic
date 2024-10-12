@@ -1,6 +1,8 @@
 ### Overview
 A curated collection of API protocols (AMQP, MQTT, gRPC, REST, and more), showcasing real-world use cases with a sleek Streamlit interface. A backend-heavy exploration of modern and legacy API communication.
 
+![](img/img.png)
+
 ### Table of Contents
 1. Project Description
 2. Technologies Used
