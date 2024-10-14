@@ -4,6 +4,8 @@ import paho.mqtt.client as mqtt
 import requests
 import json
 import time
+import asyncio
+import websockets
 
 # AMQP
 def send_message(message):
@@ -120,3 +122,58 @@ if stock_symbol:
                 data_placeholder.write(f"Stock: {stock}, Price: {price}")
     except Exception as e:
         data_placeholder.write(f"Error: {e}")
+
+# WebSocket
+# WebSocket server URI
+uri = "ws://websocket-server:5002"  # Use the service name defined in docker-compose
+
+# Streamlit app
+st.title("WebSocket Chat")
+
+async def connect_websocket():
+    """Connect to the WebSocket server."""
+    try:
+        websocket = await websockets.connect(uri)
+        return websocket
+    except Exception as e:
+        st.error(f"Error connecting to WebSocket: {e}")
+        return None  # Return None if the connection fails
+
+async def send_message(websocket, message):
+    """Send a message through the WebSocket."""
+    if websocket is not None:  # Check if websocket is not None
+        await websocket.send(message)
+
+async def receive_messages(websocket):
+    """Receive messages from the WebSocket and display them."""
+    try:
+        while True:
+            message = await websocket.recv()
+            st.write(f"Received: {message}")
+    except Exception as e:
+        st.error(f"Error receiving messages: {e}")
+
+# Start chat button
+if st.button("Start Chat"):
+    websocket = asyncio.run(connect_websocket())  # Get the websocket object
+
+    if websocket:  # Check if the connection was successful
+        # Start receiving messages
+        asyncio.create_task(receive_messages(websocket))  # Create task in the background
+
+        # Input for sending messages
+        message = st.text_input("Enter your message:")
+        if st.button("Send"):
+            asyncio.run(send_message(websocket, message))  # Send the message
+
+        # Optionally, stop the task when you finish
+        if st.button("Stop Chat"):
+            async def stop_chat():
+                await websocket.close()  # Close the connection
+                st.write("Chat stopped.")
+            asyncio.run(stop_chat())
+
+# Display any errors or notifications
+if 'error' in st.session_state:
+    st.error(st.session_state['error'])
+

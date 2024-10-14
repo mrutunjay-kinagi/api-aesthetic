@@ -35,7 +35,13 @@ services:
       context: ./backend/sse
       dockerfile: Dockerfile
     ports:
-      - "5000:5000" 
+      - "5000:5000"
+
+ websocket-server:
+    build:
+      context: ./backend/websocket
+    ports:
+      - "5002:5002"  # Expose port 5002 for WebSocket      
   
  streamlit:
     build: ./frontend/streamlit
@@ -44,4 +50,5 @@ services:
     depends_on:
       - rabbitmq
       - mosquitto
-      - sse-server         
+      - sse-server
+      - websocket-server         
