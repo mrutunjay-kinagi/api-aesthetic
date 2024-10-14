@@ -98,7 +98,7 @@ data_placeholder = st.empty()
 def fetch_sse_data_with_retry(symbol, retries=5, delay=2):
     for attempt in range(retries):
         try:
-            response = requests.get(f"http://localhost:5001/events/{symbol}", stream=True)
+            response = requests.get(f"http://localhost:5000/events/{symbol}", stream=True)
             response.raise_for_status()  # Raise an HTTPError for bad responses
             return response.iter_lines()
         except requests.exceptions.RequestException as e:

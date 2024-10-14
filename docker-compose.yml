@@ -35,7 +35,7 @@ services:
       context: ./backend/sse
       dockerfile: Dockerfile
     ports:
-      - "5001:5000" 
+      - "5000:5000" 
   
  streamlit:
     build: ./frontend/streamlit
