@@ -1,6 +1,5 @@
 import asyncio
 import websockets
-import json
 
 connected_clients = set()
 

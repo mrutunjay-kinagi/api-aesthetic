@@ -51,4 +51,10 @@ services:
       - rabbitmq
       - mosquitto
       - sse-server
-      - websocket-server         
+      - websocket-server
+  
+ graphql:
+    build:
+      context: ./backend/graphql
+    ports:
+      - "5003:5003"               

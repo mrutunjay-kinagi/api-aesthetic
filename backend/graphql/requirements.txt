@@ -1,0 +1,5 @@
+flask-graphql==2.0.1  # or a later version if compatible with your use case
+graphene==2.1.9  # Downgrade graphene to a version compatible with flask-graphql
+Werkzeug==2.0.3
+Flask==2.0.3
+yfinance==0.2.12
