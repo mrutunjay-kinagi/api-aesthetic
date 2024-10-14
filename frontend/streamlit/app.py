@@ -1,6 +1,9 @@
 import streamlit as st
 import pika
 import paho.mqtt.client as mqtt
+import requests
+import json
+import time
 
 # AMQP
 def send_message(message):
@@ -38,7 +41,7 @@ if st.button("Receive Message"):
     else:
         st.warning("No messages in the queue.")
 
-# MQTT
+# # MQTT
 MQTT_BROKER = "mosquitto"  # This should match the service name in docker-compose
 MQTT_PORT = 1883
 TOPIC = "test/topic"
@@ -81,3 +84,39 @@ if "mqtt_message" in st.session_state:
     st.write(f"Received Message: {st.session_state['mqtt_message']}")
 else:
     st.write("No messages received yet.")
+
+#SSE
+st.title("SSE DEMO - Live Stock Price Tracker")
+
+# Input for stock symbol
+stock_symbol = st.text_input("Enter Stock Symbol", "AAPL")
+
+# Create a placeholder for the data
+data_placeholder = st.empty()
+
+# Function to fetch SSE data with retry
+def fetch_sse_data_with_retry(symbol, retries=5, delay=2):
+    for attempt in range(retries):
+        try:
+            response = requests.get(f"http://localhost:5001/events/{symbol}", stream=True)
+            response.raise_for_status()  # Raise an HTTPError for bad responses
+            return response.iter_lines()
+        except requests.exceptions.RequestException as e:
+            if attempt < retries - 1:
+                time.sleep(delay)
+                continue
+            else:
+                raise e
+
+# Listening to the SSE stream
+if stock_symbol:
+    try:
+        sse_data = fetch_sse_data_with_retry(stock_symbol)
+        for line in sse_data:
+            if line:
+                data = json.loads(line.decode('utf-8')[5:])  # Skip "data: " prefix
+                stock = data['stock']
+                price = data['price']
+                data_placeholder.write(f"Stock: {stock}, Price: {price}")
+    except Exception as e:
+        data_placeholder.write(f"Error: {e}")

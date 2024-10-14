@@ -1,4 +1,4 @@
-version: '3'
+#version: '3'
 services:
  rabbitmq:
    image: rabbitmq:3-management
@@ -21,19 +21,27 @@ services:
    depends_on:
      - rabbitmq
 
-  streamlit:
+ mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    volumes:
+      - ./backend/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf  # Point to the config file
+    ports:
+      - "1883:1883"  
+      - "9001:9001"  
+
+ sse-server:
+    build:
+      context: ./backend/sse
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000" 
+  
+ streamlit:
     build: ./frontend/streamlit
     ports:
       - "8501:8501"
     depends_on:
       - rabbitmq
       - mosquitto
-
-  mosquitto:
-    image: eclipse-mosquitto
-    container_name: mosquitto
-    volumes:
-      - ./backend/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf  # Point to the config file
-    ports:
-      - "1883:1883"  # MQTT port
-      - "9001:9001"  # WebSocket port (optional)
+      - sse-server         
