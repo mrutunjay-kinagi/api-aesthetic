@@ -6,6 +6,8 @@ import json
 import time
 import asyncio
 import websockets
+import xml.etree.ElementTree as ET
+
 
 # AMQP
 def send_message(message):
@@ -177,3 +179,48 @@ if st.button("Start Chat"):
 if 'error' in st.session_state:
     st.error(st.session_state['error'])
 
+
+# SOAP
+# Function to send SOAP request to the backend SOAP service
+def get_stock_price_soap(symbol):
+    soap_url = "http://soap-server:5004/soap"
+    headers = {"Content-Type": "text/xml; charset=utf-8"}
+
+    # The SOAP request XML template
+    soap_body = f"""<?xml version="1.0" encoding="utf-8"?>
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:stock="stock.soap.api">
+    <soapenv:Header/>
+        <soapenv:Body>
+            <stock:getStockPrice>
+                <stock:symbol>{symbol}</stock:symbol>
+            </stock:getStockPrice>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    """
+
+    # Sending the SOAP request to the API
+    response = requests.post(soap_url, data=soap_body, headers=headers)
+
+    # Checking if the response is successful
+    if response.status_code == 200:
+        # Extracting the response content
+        root = ET.fromstring(response.content)
+        # Extracting the stock price from the response
+        stock_price = root.find('.//{stock.soap.api}getStockPriceResult').text
+        return stock_price
+    else:
+        return None
+
+# Streamlit UI layout
+st.title("SOAP API Stock Price Viewer")
+
+# Input field for the stock symbol
+stock_symbol = st.text_input("Enter Stock Symbol (e.g., AAPL, TSLA)", "AAPL")
+
+# Button to trigger the SOAP request
+if st.button("Get Stock Price"):
+    stock_price = get_stock_price_soap(stock_symbol)
+    if stock_price:
+        st.write(f"The stock price of {stock_symbol} is {stock_price}")
+    else:
+        st.write("Failed to retrieve stock price.")

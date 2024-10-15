@@ -41,8 +41,20 @@ services:
     build:
       context: ./backend/websocket
     ports:
-      - "5002:5002"  # Expose port 5002 for WebSocket      
-  
+      - "5002:5002"      
+ 
+ graphql:
+    build:
+      context: ./backend/graphql
+    ports:
+      - "5003:5003"
+
+ soap-server:
+    build:
+      context: ./backend/soap
+    ports:
+      - "5004:5004"
+
  streamlit:
     build: ./frontend/streamlit
     ports:
@@ -52,9 +64,6 @@ services:
       - mosquitto
       - sse-server
       - websocket-server
-  
- graphql:
-    build:
-      context: ./backend/graphql
-    ports:
-      - "5003:5003"               
+      - graphql
+      - soap-server
+                     
